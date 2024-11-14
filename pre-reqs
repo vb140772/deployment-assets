@@ -6,9 +6,7 @@ echo "Before running this script, you need to set up passwordless ssh and copy c
 
 # Install ancillary packages 
 sudo apt install clustershell git prometheus prometheus-process-exporter prometheus-node-exporter
-clush --hostfile /home/$USER/minio-nodes sudo apt install sysstat iperf 
-
-
+clush --hostfile /home/$USER/minio-nodes sudo apt install sysstat iperf tmux
 
 # Download AIStor components
 wget https://dl.min.io/aistor/mc/release/linux-amd64/mc
