@@ -1,0 +1,30 @@
+#!/bin/bash
+#objcount=100
+for op in put get stat delete list; do
+        for size in  1Kib 1MiB 100MiB; do
+                for conc in 60 80; do
+            flags="--noclear"
+            if [ ${op} == "get" ]; then
+                flags="--list-existing --noclear"
+            elif [ ${op} == "delete" ]; then
+                flags="--noclear --objects 50000"
+            fi
+
+            echo "Using flags: ${flags}";
+        warp ${op} --warp-client=minio{1...4}  \
+                 --bucket warp-bucket \
+                 --prefix objsize-${size}-threads-${conc}/ \
+                 --obj.generator random \
+                 --region us-east-1 \
+                 --access-key=minioadmin \
+                 --secret-key=minioadmin \
+                 --obj.size=${size} \
+                 --concurrent=${conc} \
+                 --duration 5m \
+                 --benchdata objsize-${size}-threads-${conc}-${op} \
+                 ${flags} | tee objSize${size}-threads-${conc}-${op}.log
+
+        done;
+    done;
+  done
+

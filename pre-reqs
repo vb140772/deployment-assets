@@ -1,0 +1,43 @@
+sudo apt install sysstat iperf clustershell git prometheus prometheus-process-exporter prometheus-node-exporter
+git clone https://github.com/eco-minio/deployment-assets
+cd deployment-assets
+
+# Download AIStor components
+wget https://dl.min.io/aistor/mc/release/linux-amd64/mc 
+wget https://dl.min.io/aistor/minio/release/linux-amd64/minio
+wget https://dl.min.io/aistor/minkms/release/linux-amd64/minkms
+wget https://dl.min.io/aistor/minwall/release/linux-amd64/minwall
+wget https://dl.min.io/aistor/minwall/release/linux-amd64/mincat
+
+# Download benchmarking tools 
+wget https://github.com/minio/hperf/releases/latest/download/hperf-linux-amd64
+wget https://github.com/minio/dperf/releases/latest/download/dperf-linux-amd64
+
+# Since warp has no direct link, use this monstrosity  -- it almost certainly will break in the future
+wget https://github.com/minio/warp/releases/download/$(curl https://github.com/minio/warp/releases/ | grep tree | grep -v script | head -n1 |cut -b 33-38)/warp_Linux_x86_64.tar.gz
+
+# Unpack warp
+tar -xvzf warp_Linux_x86_64.tar.gz
+
+# Make binaries executable
+chmod +x mc minio minkms minwall mincat hperf dperf warp
+
+# Make generic asset / config dir for minio
+sudo mkdir /etc/minio
+
+# Copy systemd service files
+sudo cp *service /etc/systemd/system/
+
+# Copy binaries to $PATH
+sudo cp mc minio minkms minwall mincat /usr/local/bin
+
+# Copy config files to generic location
+sudo cp *config public.crt private.key /etc/minio/
+
+
+# Grafana setup 
+# TODO
+
+# Prometheus setup
+# TODO
+
