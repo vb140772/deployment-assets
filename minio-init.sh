@@ -2,7 +2,7 @@
 
 # Remind users to set up passwordless ssh, clush and visudo
 
-echo "Before running this script, you need to set up passwordless ssh and create a clush hosts file in /home/$USER/minio-nodes"
+echo "Before running this script, you need to set up passwordless ssh and create a clush hosts file in /home/$USER/minio-nodes. You will also need to copy the minio.license into this folder"
 
 # Install ancillary packages 
 # Make sure to run bootstrap.sh on the primary node to install needed packages
@@ -41,7 +41,7 @@ clush --hostfile /home/$USER/minio-nodes sudo cp /tmp/*service /etc/systemd/syst
 clush --hostfile /home/$USER/minio-nodes sudo cp /tmp/mc /tmp/minio /tmp/minkms /tmp/minwall /tmp/mincat /usr/local/bin
 
 # Copy config files to generic location
-clush --hostfile /home/$USER/minio-nodes  sudo cp /tmp/*config /tmp/public.crt /tmp/private.key /etc/minio/
+clush --hostfile /home/$USER/minio-nodes  sudo cp /tmp/*config /tmp/public.crt /tmp/private.key /tmp/minio.license /etc/minio/
 
 
 # Grafana setup 
