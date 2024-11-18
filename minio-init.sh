@@ -41,7 +41,7 @@ clush --hostfile /home/$USER/minio-nodes sudo mkdir /etc/minio
 clush --hostfile /home/$USER/minio-nodes sudo cp /home/$USER/assets/*service /etc/systemd/system/
 
 # Copy binaries to $PATH
-clush --hostfile /home/$USER/minio-nodes sudo cp /home/$USER/assets/mc /home/$USER/assets/minio /home/$USER/assets/minkms /home/$USER/assets/minwall /home/$USER/assets/mincat /usr/local/bin
+clush --hostfile /home/$USER/minio-nodes sudo cp  /home/$USER/assets/warp /home/$USER/assets/dperf /home/$USER/assets/hperf /home/$USER/assets/mc /home/$USER/assets/minio /home/$USER/assets/minkms /home/$USER/assets/minwall /home/$USER/assets/mincat /usr/local/bin
 
 # Copy config files to generic location
 clush --hostfile /home/$USER/minio-nodes  sudo cp /home/$USER/assets/*config /home/$USER/assets/public.crt /home/$USER/assets/private.key /home/$USER/assets/minio.license /etc/minio/
