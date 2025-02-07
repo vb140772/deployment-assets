@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Remind users to set up passwordless ssh, clush and visudo
+
+#echo "Before running this script, you need to set up passwordless ssh and copy cloud-init.sh"
+echo "Before running this script, you need to set up passwordless ssh to all nodes"
+
+# Install ancillary packages 
+#sudo apt install clustershell git prometheus prometheus-process-exporter prometheus-node-exporter
+clush -l ubuntu --hostfile /home/$USER/minio-nodes sudo apt install sysstat iperf tmux -y
+
+# Create a temp local dir to stage assets
+mkdir /tmp/minio-assets-temp
+
+# Copy existing assets to staging
+cp *service *config *license *key *crt aliases format.sh /tmp/minio-assets-temp
+
+
+# Download AIStor components
+wget --progress=bar:force https://dl.min.io/aistor/mc/release/linux-amd64/mc -P /tmp/minio-assets-temp/
+wget --progress=bar:force https://dl.min.io/aistor/minio/release/linux-amd64/minio -P /tmp/minio-assets-temp/
+wget --progress=bar:force https://dl.min.io/aistor/minkms/release/linux-amd64/minkms -P /tmp/minio-assets-temp/
+wget --progress=bar:force https://dl.min.io/aistor/minwall/release/linux-amd64/minwall -P /tmp/minio-assets-temp/
+wget --progress=bar:force https://dl.min.io/aistor/mincat/release/linux-amd64/mincat -P /tmp/minio-assets-temp/
+
+# Download benchmarking tools 
+wget --progress=bar:force https://github.com/minio/hperf/releases/latest/download/hperf-linux-amd64 -O /tmp/minio-assets-temp/hperf
+wget --progress=bar:force https://github.com/minio/dperf/releases/latest/download/dperf-linux-amd64 -O /tmp/minio-assets-temp/dperf
+
+# Since warp has no direct link, use this monstrosity  -- it almost certainly will break in the future
+wget --progress=bar:force https://github.com/minio/warp/releases/download/$(curl https://github.com/minio/warp/releases/ | grep tree | grep -v script | head -n1 |cut -b 33-38)/warp_Linux_x86_64.tar.gz -P /tmp/minio-assets-temp/
+
+# Unpack warp
+tar -xvzf  /tmp/minio-assets-temp/warp_Linux_x86_64.tar.gz -C /tmp/minio-assets-temp/
+
+# Make binaries executable
+chmod +x /tmp/minio-assets-temp/{mc,minio,minkms,minwall,mincat,hperf,dperf,warp}
+
+# Copy assets to remote nodes - note that clush copy mode with directory will add the directory _to the --dest_ , so later we have to call the full path on the remote system
+clush -l ubuntu -P --hostfile /home/$USER/minio-nodes --copy /tmp/minio-assets-temp/ --dest /tmp
+clush -l ubuntu -P --hostfile /home/$USER/minio-nodes --copy  *service *config *license *key *crt aliases format.sh --dest /tmp/minio-assets-temp/
+# Make generic asset / config dir for minio and change ownership
+clush -l ubuntu -P --hostfile /home/$USER/minio-nodes sudo mkdir /etc/minio
+clush -l ubuntu -P --hostfile /home/$USER/minio-nodes sudo chown ubuntu /etc/minio
+
+# Copy systemd service files
+clush -l ubuntu -P --hostfile /home/$USER/minio-nodes sudo cp /tmp/minio-assets-temp/*service /etc/systemd/system/
+
+# Copy binaries to $PATH
+clush -l ubuntu -P --hostfile /home/$USER/minio-nodes sudo cp /tmp/minio-assets-temp/{mc,minio,minkms,minwall,mincat,hperf,dperf,warp} /usr/local/bin
+
+# Copy config files to generic location
+clush -l ubuntu -P --hostfile /home/$USER/minio-nodes  sudo cp /tmp/minio-assets-temp/*config /tmp/minio-assets-temp/public.crt /tmp/minio-assets-temp/private.key /etc/minio/
+
+
+# Grafana setup 
+# TODO
+
+# Prometheus setup
+# TODO

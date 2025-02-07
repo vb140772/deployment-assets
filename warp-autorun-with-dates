@@ -1,0 +1,34 @@
+#!/bin/bash
+#objcount=100
+for op in get ; do
+        for size in  1Kib ; do
+                for conc in 80; do
+            flags="--noclear"
+            if [ ${op} == "get" ]; then
+                flags="--list-existing --objects 250000 --noclear"
+            elif [ ${op} == "delete" ]; then
+                flags="--noclear --objects 50000"
+            fi
+
+            echo "Using flags: ${flags}"
+	    echo -e  "Getting v3 system metrics before:\n"
+	    mc admin prometheus metrics minio system --api-version v3 > objsize${size}threads${conc}-${op}-$(date +%Y-%m-%d-%H-%M-%N)-cache-metrics-before
+        warp ${op} --warp-client=15.15.15.{78...81}  --tls --insecure \
+                 --bucket cache-tests \
+                 --prefix objsize-${size}-threads-${conc}/ \
+                 --obj.generator random \
+                 --region us-east-1 \
+                 --access-key=minioadmin \
+                 --secret-key=minioadmin \
+                 --obj.size=${size} \
+                 --concurrent=${conc} \
+                 --duration 5m \
+		 --benchdata objsize-${size}-threads-${conc}-${op}-$(date +%Y-%m-%d-%H-%M-%N) \
+		 ${flags} | tee objsize${size}-threads${conc}-${op}-$(date +%Y-%m-%d-%H-%M-%N).log
+echo "Getting v3 system metrics after:\n"
+            mc admin prometheus metrics minio system --api-version v3 > objsize${size}threads${conc}-${op}-$(date +%Y-%m-%d-%H-%M-%N)-cache-metrics-after
+
+        done;
+    done;
+  done
+
