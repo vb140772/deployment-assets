@@ -1,7 +1,7 @@
 #!/bin/bash
 #objcount=100
-for op in get ; do
-        for size in  1Kib ; do
+for op in put get stat list delete ; do
+        for size in  10KiB 8MiB 100MiB ; do
                 for conc in 80; do
             flags="--noclear"
             if [ ${op} == "get" ]; then
@@ -13,7 +13,7 @@ for op in get ; do
             echo "Using flags: ${flags}"
 	    echo -e  "Getting v3 system metrics before:\n"
 	    mc admin prometheus metrics minio system --api-version v3 > objsize${size}threads${conc}-${op}-$(date +%Y-%m-%d-%H-%M-%N)-cache-metrics-before
-        warp ${op} --warp-client=15.15.15.{78...81}  --tls --insecure \
+        warp ${op} --warp-client=minio{1...4}  --tls --insecure \
                  --bucket cache-tests \
                  --prefix objsize-${size}-threads-${conc}/ \
                  --obj.generator random \
