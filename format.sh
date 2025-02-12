@@ -21,5 +21,5 @@ for i in ${!devices[@]}
 do 
     sudo mkdir /mnt/minio-data${i}
     sudo mkfs.xfs -f -L minio-data${i} /dev/${devices[i]}
-    echo "echo \"LABEL=minio-data${i} /mnt/minio-data${i}  xfs     defaults,noatime        0 0\" >> /etc/fstab"
+    echo "LABEL=minio-data${b[i]} /mnt/minio-data${b[i]}  xfs     defaults,noatime        0 0"
 done
